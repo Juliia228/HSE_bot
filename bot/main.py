@@ -5,10 +5,10 @@ from message_handling import handle_call
 from functions import update_from
 from functions import bot
 
-bd = {}
+requests = {}
 chats = []
 with open('requests.json', 'w+') as file:
-    json.dump(bd, file)
+    json.dump(requests, file)
 with open('chats_of_staff.json', 'w+') as file:
     json.dump(chats, file)
 
@@ -29,8 +29,8 @@ def repeat_all_messages(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
-    bd, chats = update_from()
-    if str(call.from_user.id) in bd:
+    requests, chats = update_from()
+    if str(call.from_user.id) in requests:
         try:
             handle_call(call)
         except:
