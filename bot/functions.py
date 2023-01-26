@@ -38,7 +38,7 @@ def select_corps(attribute2):
     keyboard.add(key_lvov)
     key_sorm = types.InlineKeyboardButton(text='Сормовское шоссе, 30', callback_data='sorm')
     keyboard.add(key_sorm)
-    bot.send_message(attribute2.chat.id, text="Выберите корпус", reply_markup=keyboard)
+    bot.send_message(attribute2, text="Выберите корпус", reply_markup=keyboard)
 
 def print_requests_to_chat(id, text):
     requests, chats = update_from()
@@ -56,7 +56,7 @@ def print_requests_to_chat(id, text):
         count_of_requests += (len(requests[i]) - 3)
 
     if count_of_requests > 30:
-        bot.send_message(id, "Во избежание зависания бота, удалите некоторые запросы. "
+        bot.send_message(id, text="Во избежание зависания бота, удалите некоторые запросы. "
                                    "Чтобы посмотреть все запросы, напишите /print")
 
 def print_request_to_chats(id):
@@ -69,10 +69,10 @@ def print_request_to_chats(id):
         count_of_requests += (len(requests[i]) - 3)
 
     for chat in chats:
-        bot.send_message(chat, "Добавлен новый запрос")
-        bot.send_message(chat, request)
+        bot.send_message(chat, text="Добавлен новый запрос")
+        bot.send_message(chat, text=request)
         if count_of_requests > 30:
-            bot.send_message(chat, "Во избежание зависания бота, удалите некоторые запросы. "
+            bot.send_message(chat, text="Во избежание зависания бота, удалите некоторые запросы. "
                                    "Чтобы посмотреть все запросы, напишите /print")
 
 def update_from():

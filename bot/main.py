@@ -18,14 +18,14 @@ def repeat_all_messages(message):
         try:
             chat_functions(message)
         except:
-            bot.send_message(message.chat.id, 'Неверный запрос. Если вы думаете, что произошла ошибка, сообщите о ней @iuliia_kom')
+            bot.send_message(message.chat.id, text='Неверный запрос. Если вы думаете, что произошла ошибка, сообщите о ней @iuliia_kom')
     elif message.chat.type == 'private':
         try:
             make_request(message)
         except:
-            bot.send_message(message.chat.id, 'Неверный запрос. Если вы думаете, что произошла ошибка, сообщите о ней @iuliia_kom')
+            bot.send_message(message.chat.id, text='Неверный запрос. Если вы думаете, что произошла ошибка, сообщите о ней @iuliia_kom')
     else:
-        bot.send_message(message.chat.id, 'Неверный запрос. Если вы думаете, что произошла ошибка, сообщите о ней @iuliia_kom')
+        bot.send_message(message.chat.id, text='Неверный запрос. Если вы думаете, что произошла ошибка, сообщите о ней @iuliia_kom')
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
@@ -34,6 +34,6 @@ def callback_worker(call):
         try:
             handle_call(call)
         except:
-            bot.send_message(call.message.chat.id, 'Неверный запрос. Если вы думаете, что произошла ошибка, сообщите о ней @iuliia_kom')
+            bot.send_message(call.message.chat.id, text='Неверный запрос. Если вы думаете, что произошла ошибка, сообщите о ней @iuliia_kom')
 
 bot.polling(none_stop=True, interval=0)

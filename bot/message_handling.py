@@ -14,15 +14,15 @@ def chat_functions(message):
         if message.text[:4] == "/add":
             chats.append(str(message.chat.id))
             update_in(requests, chats)
-            bot.send_message(message.chat.id, "Чат успешно добавлен")
+            bot.send_message(message.chat.id, text="Чат успешно добавлен")
             functions = 'Функции бота:\n"/help" - список функций бота\n"/print" - напишите, чтобы увидеть список ' \
                         'всех текущих запросов от пользователей\n"/delX" - напишите, чтобы удалить запрос под ' \
                         'номером X из списка текущих запросов, если эту проблему кто-то решает или уже решил. Пример ' \
                         'вызова данной функции: /del2 - удалится второй запрос\n\nПо вопросам и предложениям ' \
                         'обращайтесь к @iuliia_kom'
-            bot.send_message(message.chat.id, functions)
+            bot.send_message(message.chat.id, text=functions)
         else:
-            bot.send_message(message.chat.id, "Добавьте данный чат в рассылку специальной командой")
+            bot.send_message(message.chat.id, text="Добавьте данный чат в рассылку специальной командой")
 
     elif message.text[:5] == "/help":
         functions = 'Функции бота:\n"/help" - список функций бота\n"/print" - напишите, чтобы увидеть список ' \
@@ -30,7 +30,7 @@ def chat_functions(message):
                     'номером X из списка текущих запросов, если эту проблему кто-то решает или уже решил. Пример ' \
                     'вызова данной функции: /del2 - удалится второй запрос\n\nПо вопросам и предложениям ' \
                     'обращайтесь к @iuliia_kom'
-        bot.send_message(message.chat.id, functions)
+        bot.send_message(message.chat.id, text=functions)
 
     elif message.text[:6] == "/print":
         reply = 'Текущие запросы:\n'
@@ -67,11 +67,14 @@ def chat_functions(message):
             for chat in chats:
                 print_requests_to_chat(chat, reply)
         except ValueError:
-            bot.send_message(message.chat.id, 'Неверная команда')
+            bot.send_message(message.chat.id, text='Неверная команда')
 
 def make_request(message):
     requests, chats = update_from()
-    if message.text[:6] in ["/start", "Привет", "привет"]:
+    if message.text[:6] in ["/start", "Привет", "привет", "start"]:
+        bot.send_message(message.chat.id, text="Здравствуйте!")
+        # if message.text[:6] == "/start":
+        #     bot.send_message(message.chat.id, "")
         exist = check_index(str(message.from_user.id))
         requests, chats = update_from()
         if exist:
@@ -80,9 +83,9 @@ def make_request(message):
                 update_in(requests, chats)
                 print_request_to_chats(str(message.from_user.id))
             requests[str(message.from_user.id)].append(['', '', '', False])
-        bot.send_message(message.chat.id, "Здравствуйте!")
         requests[str(message.from_user.id)][2] = 'korp'
-        select_corps(message)
+        update_in(requests, chats)
+        select_corps(message.chat.id)
 
     elif str(message.from_user.id) in requests:
         if requests[str(message.from_user.id)][-1][1] == '':
@@ -92,9 +95,9 @@ def make_request(message):
                 update_in(requests, chats)
                 check(str(message.from_user.id), message)
             elif requests[str(message.from_user.id)][0] == '':
-                bot.send_message(message.chat.id, "Введите ваши ФИО одним сообщением")
+                bot.send_message(message.chat.id, text="Введите ваши ФИО одним сообщением")
             else:
-                bot.send_message(message.chat.id, "Опишите проблему одним сообщением")
+                bot.send_message(message.chat.id, text="Опишите проблему одним сообщением")
         elif requests[str(message.from_user.id)][0] == '':
             requests[str(message.from_user.id)][0] = message.text
             if requests[str(message.from_user.id)][2] == 'change':
@@ -102,7 +105,7 @@ def make_request(message):
                 update_in(requests, chats)
                 check(str(message.from_user.id), message)
             else:
-                bot.send_message(message.chat.id, "Введите ваш номер телефона")
+                bot.send_message(message.chat.id, text="Введите ваш номер телефона")
         elif requests[str(message.from_user.id)][1] == '':
             requests[str(message.from_user.id)][1] = message.text
             if requests[str(message.from_user.id)][2] == 'change':
@@ -110,17 +113,25 @@ def make_request(message):
                 update_in(requests, chats)
                 check(str(message.from_user.id), message)
             else:
-                bot.send_message(message.chat.id, "Опишите проблему одним сообщением")
+                bot.send_message(message.chat.id, text="Опишите проблему одним сообщением")
         elif requests[str(message.from_user.id)][-1][2] == '':
             requests[str(message.from_user.id)][-1][2] = message.text
             requests[str(message.from_user.id)][2] = 'check'
             update_in(requests, chats)
             check(str(message.from_user.id), message)
         else:
-            bot.send_message(message.chat.id, "Чтобы добавить запрос, напишите привет или /start")
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            start_button = types.KeyboardButton(text="start")
+            markup.add(start_button)
+            bot.send_message(message.chat.id, text="Чтобы добавить запрос, напишите привет или нажмите на кнопку start",
+                             reply_markup=markup)
+        update_in(requests, chats)
     else:
-        bot.send_message(message.chat.id, "Чтобы добавить запрос, напишите привет или /start")
-    update_in(requests, chats)
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        start_button = types.KeyboardButton(text="start")
+        markup.add(start_button)
+        bot.send_message(message.chat.id, text="Чтобы добавить запрос, напишите привет или нажмите на кнопку start",
+                         reply_markup=markup)
 
 def handle_call(call):
     requests, chats = update_from()
@@ -170,16 +181,23 @@ def handle_call(call):
                 requests[str(call.from_user.id)][2] = 'check'
                 update_in(requests, chats)
                 check(str(call.from_user.id), call.message)
+        update_in(requests, chats)
 
     elif requests[str(call.from_user.id)][2] == 'check':
         if call.data == 'yes':
             requests[str(call.from_user.id)][-1][-1] = True
             requests[str(call.from_user.id)][2] = ''
-            bot.send_message(call.message.chat.id, "Ответ записан")
             update_in(requests, chats)
+            bot.send_message(call.message.chat.id, text="Ответ записан")
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            start_button = types.KeyboardButton(text="start")
+            markup.add(start_button)
+            bot.send_message(call.message.chat.id, text="Чтобы добавить еще один запрос, напишите привет или нажмите "
+                                                        "на кнопку start", reply_markup=markup)
             print_request_to_chats(str(call.from_user.id))
         elif call.data == 'no':
             requests[str(call.from_user.id)][2] = 'change'
+            update_in(requests, chats)
             keyboard = types.InlineKeyboardMarkup()
             key1 = types.InlineKeyboardButton(text='Корпус', callback_data='korp')
             keyboard.add(key1)
@@ -196,17 +214,17 @@ def handle_call(call):
     elif requests[str(call.from_user.id)][2] == 'change':
         if call.data == 'korp':
             requests[str(call.from_user.id)][2] = 'korp'
-            select_corps(call.message)
+            select_corps(call.message.chat.id)
         elif call.data == 'aud':
             requests[str(call.from_user.id)][-1][1] = ''
             bot.send_message(call.message.chat.id, text="Введите аудиторию")
         elif call.data == 'probl':
             requests[str(call.from_user.id)][-1][2] = ''
-            bot.send_message(call.message.chat.id, "Опишите проблему одним сообщением")
+            bot.send_message(call.message.chat.id, text="Опишите проблему одним сообщением")
         elif call.data == 'fio':
             requests[str(call.from_user.id)][0] = ''
-            bot.send_message(call.message.chat.id, "Введите ваши ФИО одним сообщением")
+            bot.send_message(call.message.chat.id, text="Введите ваши ФИО одним сообщением")
         elif call.data == 'phone':
             requests[str(call.from_user.id)][1] = ''
-            bot.send_message(call.message.chat.id, "Введите ваш номер телефона")
-    update_in(requests, chats)
+            bot.send_message(call.message.chat.id, text="Введите ваш номер телефона")
+        update_in(requests, chats)
