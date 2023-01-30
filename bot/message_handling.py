@@ -72,9 +72,8 @@ def chat_functions(message):
 def make_request(message):
     requests, chats = update_from()
     if message.text[:6] in ["/start", "Привет", "привет", "start"]:
-        bot.send_message(message.chat.id, text="Здравствуйте!")
-        # if message.text[:6] == "/start":
-        #     bot.send_message(message.chat.id, "")
+        bot.send_message(message.chat.id, text="Привет!\nНа связи бот технической поддержки сотрудников НИУ ВШЭ - "
+                                               "Нижний Новгород.\nЗаполните информационные поля, чтобы отправить запрос!")
         exist = check_index(str(message.from_user.id))
         requests, chats = update_from()
         if exist:
