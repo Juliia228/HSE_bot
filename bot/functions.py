@@ -10,7 +10,7 @@ def check_index(index):
     for i in list(requests.keys()):
         if i == index:
             return True
-    requests[index] = ['', '', '', ['', '', '', False]]  # ['фио', 'телефон', что ждем на ввод, ['корпус', 'аудитория', 'описание проблемы', True-запрос дописан/False- не дописан], ['корпус', 'аудитория', 'описание проблемы', True-запрос дописан/False- не дописан], ...]
+    requests[index] = ['', '', '', ['', '', '', [], False]]  # ['фио', 'телефон', что ждем на ввод, ['корпус', 'аудитория', 'описание проблемы', 'фото', True-запрос дописан/False- не дописан], ['корпус', 'аудитория', 'описание проблемы', 'фото', True-запрос дописан/False- не дописан], ...]
     update_in(requests, chats)
     return False
 
@@ -21,9 +21,10 @@ def check(attribute1, attribute2):
     keyboard.add(key_yes)
     key_no = types.InlineKeyboardButton(text='Нет', callback_data='no')
     keyboard.add(key_no)
-    question = 'Проблема возникла по адресу ' + requests[attribute1][-1][0] + ' в аудитории ' + requests[attribute1][-1][1] + \
-               ', ее описание следующее: "' + requests[attribute1][-1][2] + '", а ваши контактные данные: ' + requests[attribute1][0] + \
-               ', ' + requests[attribute1][1] + '?'
+    question = 'Проблема возникла по адресу ' + requests[attribute1][-1][0] + ' в аудитории ' + \
+               requests[attribute1][-1][1] + ', ее описание следующее: "' + requests[attribute1][-1][2] + \
+               '", вы прикрепили ' + str(len(requests[attribute1][-1][3])) + ' фото, а ваши контактные данные: ' + \
+               requests[attribute1][0] + ', ' + requests[attribute1][1] + '?'
     bot.send_message(attribute2.chat.id, text=question, reply_markup=keyboard)
 
 def select_corps(attribute2):
@@ -47,9 +48,23 @@ def print_requests_to_chat(id, text):
         for j in range(3, len(requests[i])):
             if requests[i][j][-1]:
                 text += str(cur_ind) + ') ' + requests[i][0] + ' ' + requests[i][1] + '\nКорпус: ' + requests[i][j][0] + \
-                        ', аудитория: ' + requests[i][j][1] + ', проблема: ' + requests[i][j][2] + '\n'
+                        ', аудитория: ' + requests[i][j][1] + ', проблема: ' + requests[i][j][2] + ', ' +\
+                        str(len(requests[i][j][3])) + ' прикрепленных фото\n'
                 cur_ind += 1
-    bot.send_message(id, text)
+    bot.send_message(id, text, parse_mode="Markdown")
+
+    cur_ind = 1
+    for i in list(requests.keys()):
+        for j in range(3, len(requests[i])):
+            if requests[i][j][-1]:
+                if len(requests[i][j][3]) != 0:
+                    text = "Фотография, прикрепленная к запросу №" + str(cur_ind)
+                    for photo in requests[i][j][3]:
+                        fileID = photo
+                        file_info = bot.get_file(fileID)
+                        file = bot.download_file(file_info.file_path)
+                        bot.send_photo(id, file, text)
+                cur_ind += 1
 
     count_of_requests = 0
     for i in list(requests.keys()):
@@ -61,16 +76,22 @@ def print_requests_to_chat(id, text):
 
 def print_request_to_chats(id):
     requests, chats = update_from()
-    request = requests[id][0] + ' ' + requests[id][1] + '\nКорпус: ' + requests[id][-1][0] + \
-              ', аудитория: ' + requests[id][-1][1] + ', проблема: ' + requests[id][-1][2] + '\n'
+    request = "*Добавлен новый запрос*\n" + requests[id][0] + ' ' + requests[id][1] + '\nКорпус: ' + requests[id][-1][0] + \
+              ',\nаудитория: ' + requests[id][-1][1] + ',\nпроблема: ' + requests[id][-1][2] + ',\n' +\
+              str(len(requests[id][-1][3])) + ' прикрепленных фото'
 
     count_of_requests = 0
     for i in list(requests.keys()):
         count_of_requests += (len(requests[i]) - 3)
 
     for chat in chats:
-        bot.send_message(chat, text="Добавлен новый запрос")
-        bot.send_message(chat, text=request)
+        bot.send_message(chat, text=request, parse_mode="Markdown")
+        if len(requests[id][-1][3]) != 0:
+            for photo in requests[id][-1][3]:
+                fileID = photo
+                file_info = bot.get_file(fileID)
+                file = bot.download_file(file_info.file_path)
+                bot.send_photo(chat, file)
         if count_of_requests > 30:
             bot.send_message(chat, text="Во избежание зависания бота, удалите некоторые запросы. "
                                    "Чтобы посмотреть все запросы, напишите /print")
